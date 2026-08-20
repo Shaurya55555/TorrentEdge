@@ -324,7 +324,10 @@
         showMsg('Account created — you can sign in now.', 'success');
         setMode('login');
       } else {
-        showMsg('Signed in! Received a real JWT: ' + data.token.slice(0, 24) + '…', 'success');
+        localStorage.setItem('te_token', data.token);
+        localStorage.setItem('te_username', data.username || email);
+        showMsg('Signed in — redirecting…', 'success');
+        setTimeout(() => { window.location.href = 'dashboard.html'; }, 700);
       }
     } catch (err) {
       showMsg('Could not reach the auth service. It may be spinning up — try again in a few seconds.', 'error');

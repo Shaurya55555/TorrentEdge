@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>TorrentEdge — Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+  :root {
+    --bg: #0a0c11;
+    --surface: #12151c;
+    --surface-2: #171b24;
+    --border: #232833;
+    --text: #eef1f6;
+    --text-dim: #9aa3b2;
+    --text-faint: #5c6474;
+    --accent: #5b8cff;
+    --accent-2: #8b5bff;
+    --accent-soft: rgba(91, 140, 255, 0.12);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--border);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+  .mark {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mark svg { width: 16px; height: 16px; }
+  .logout {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  .logout:hover { color: var(--text); border-color: var(--accent); }
+
+  main { max-width: 760px; margin: 0 auto; padding: 56px 24px; }
+  .notice {
+    background: var(--accent-soft);
+    border: 1px solid rgba(91,140,255,0.3);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-bottom: 32px;
+  }
+  .notice a { color: var(--accent); }
+  h1 { font-size: 1.7rem; margin: 0 0 6px; }
+  .sub { color: var(--text-dim); margin: 0 0 32px; }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 36px; }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .stat .num { font-size: 1.5rem; font-weight: 700; }
+  .stat .label { font-size: 0.78rem; color: var(--text-dim); margin-top: 4px; }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 24px;
+  }
+  .panel h2 { font-size: 1rem; margin: 0 0 14px; }
+  .kv { display: flex; justify-content: space-between; font-size: 0.86rem; padding: 9px 0; border-bottom: 1px solid var(--border); }
+  .kv:last-child { border-bottom: none; }
+  .kv .k { color: var(--text-dim); }
+  .kv .v { font-family: ui-monospace, monospace; word-break: break-all; text-align: right; max-width: 60%; }
+
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v6M12 16v6M4.9 4.9l4.2 4.2M14.9 14.9l4.2 4.2M2 12h6M16 12h6M4.9 19.1l4.2-4.2M14.9 9.1l4.2-4.2"/>
+        </svg>
+      </div>
+      TorrentEdge
+    </div>
+    <button class="logout" id="logoutBtn">Log out</button>
+  </header>
+
+  <main>
+    <div class="notice">
+      You're authenticated via a real JWT issued by the live
+      <a href="https://github.com/Shaurya55555/torrentedge-auth-service">auth service</a>.
+      This dashboard is a static UI shell — it doesn't connect to a live torrent/Kafka backend,
+      since that requires the full Dockerized stack. See the
+      <a href="https://github.com/Shaurya55555/TorrentEdge">TorrentEdge repo</a> for that.
+    </div>
+
+    <h1 id="welcome">Welcome back</h1>
+    <p class="sub">Here's a snapshot of your session.</p>
+
+    <div class="grid">
+      <div class="stat"><div class="num">0</div><div class="label">Active torrents</div></div>
+      <div class="stat"><div class="num">0 MB/s</div><div class="label">Download speed</div></div>
+      <div class="stat"><div class="num">0 MB/s</div><div class="label">Upload speed</div></div>
+    </div>
+
+    <div class="panel">
+      <h2>Session</h2>
+      <div class="kv"><span class="k">Username</span><span class="v" id="usernameVal">—</span></div>
+      <div class="kv"><span class="k">Auth method</span><span class="v">JWT (bcrypt-verified)</span></div>
+      <div class="kv"><span class="k">Token (truncated)</span><span class="v" id="tokenVal">—</span></div>
+    </div>
+  </main>
+
+<script>
+  const token = localStorage.getItem('te_token');
+  const username = localStorage.getItem('te_username');
+
+  if (!token) {
+    window.location.href = 'login.html';
+  } else {
+    document.getElementById('welcome').textContent = 'Welcome, ' + (username || 'torrent user');
+    document.getElementById('usernameVal').textContent = username || '—';
+    document.getElementById('tokenVal').textContent = token.slice(0, 32) + '…';
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('te_token');
+    localStorage.removeItem('te_username');
+    window.location.href = 'login.html';
+  });
+</script>
+</body>
+</html>
