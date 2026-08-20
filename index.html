@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>TorrentEdge — Project Showcase</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+  :root {
+    --bg: #0b0d12;
+    --surface: #12151c;
+    --border: #232833;
+    --text: #e6e9ef;
+    --text-dim: #9aa3b2;
+    --accent: #5b8cff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 840px; margin: 0 auto; padding: 64px 24px 96px; }
+  .badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    padding: 4px 12px;
+    margin-bottom: 20px;
+  }
+  h1 { font-size: 2.4rem; margin: 0 0 8px; }
+  .tagline { color: var(--text-dim); font-size: 1.1rem; margin-bottom: 32px; }
+  .notice {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 0.92rem;
+    color: var(--text-dim);
+    margin-bottom: 40px;
+  }
+  img.screenshot {
+    width: 100%;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin: 24px 0 40px;
+    display: block;
+  }
+  h2 { font-size: 1.3rem; margin-top: 48px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+  ul { padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  .stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+  }
+  pre {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+  }
+  a.cta {
+    display: inline-block;
+    margin-top: 16px;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  a.cta:hover { text-decoration: underline; }
+  footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: 0.85rem;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="badge">Project Showcase</span>
+  <h1>TorrentEdge</h1>
+  <p class="tagline">A distributed BitTorrent client built with Node.js, Kafka, and Nginx.</p>
+
+  <div class="notice">
+    This is a documentation/showcase page for the project — it does not run a live instance of the client
+    (the app depends on Kafka, Nginx, and Dockerized backend services). For the full source and setup
+    instructions, see the <a href="https://github.com/Shaurya55555/TorrentEdge" style="color:inherit">GitHub repository</a>.
+  </div>
+
+  <img class="screenshot" src="https://github.com/user-attachments/assets/5c940e02-31b8-489c-b3ba-b11c222a8914" alt="TorrentEdge dashboard screenshot" />
+
+  <h2>Overview</h2>
+  <p>
+    TorrentEdge is a scalable, distributed BitTorrent client that combines peer-to-peer torrenting logic
+    with real-time event streaming. Kafka decouples the core torrenting engine from the API and WebSocket
+    layers, while Nginx handles reverse-proxying for static content, API requests, and WebSocket connections.
+  </p>
+
+  <h2>Key Features</h2>
+  <ul>
+    <li>Peer-to-peer torrent download/upload management</li>
+    <li>Real-time progress updates via WebSocket + Kafka</li>
+    <li>Event-driven architecture decoupling torrenting logic from the API layer</li>
+    <li>Nginx reverse proxy for static content, APIs, and WebSocket traffic</li>
+    <li>Fully Dockerized service composition (Node.js, Kafka, Nginx)</li>
+    <li>React-based dashboard for torrent status and progress</li>
+  </ul>
+
+  <h2>Tech Stack</h2>
+  <div class="stack">
+    <span class="chip">Node.js</span>
+    <span class="chip">Express</span>
+    <span class="chip">Apache Kafka</span>
+    <span class="chip">WebSocket (ws)</span>
+    <span class="chip">Nginx</span>
+    <span class="chip">MongoDB / Mongoose</span>
+    <span class="chip">React</span>
+    <span class="chip">Docker & Docker Compose</span>
+  </div>
+
+  <h2>Architecture</h2>
+  <pre>bittorrent-client/
+├── src/
+│   ├── client/        # Core BitTorrent client logic (peer, tracker, piece manager)
+│   ├── api/           # REST API + Kafka event monitoring
+│   └── server/        # Node.js server (API + WebSocket)
+├── kafka/             # Topic config, producer/consumer scripts
+├── nginx/             # Reverse proxy config
+├── web/               # React dashboard
+├── tests/
+├── Dockerfile / nginx.Dockerfile / docker-compose.yml
+</pre>
+
+  <a class="cta" href="https://github.com/Shaurya55555/TorrentEdge">View source on GitHub →</a>
+
+  <footer>
+    Built as a team hackathon project. Source hosted on GitHub — this page is a static showcase only.
+  </footer>
+</div>
+</body>
+</html>
