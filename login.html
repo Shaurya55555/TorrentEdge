@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>TorrentEdge — Login (UI Preview)</title>
+<title>TorrentEdge — Login</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style>
   :root {
@@ -17,6 +17,8 @@
     --accent: #5b8cff;
     --accent-2: #8b5bff;
     --accent-soft: rgba(91, 140, 255, 0.12);
+    --error: #ff6b6b;
+    --success: #4ade80;
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; }
@@ -44,7 +46,6 @@
     box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.6);
   }
 
-  /* Left brand panel */
   .brand {
     position: relative;
     padding: 44px 40px;
@@ -77,17 +78,8 @@
     box-shadow: 0 8px 20px -6px rgba(91,140,255,0.55);
   }
   .mark svg { width: 22px; height: 22px; }
-  .brand h1 {
-    font-size: 1.5rem;
-    margin: 0 0 10px;
-    letter-spacing: -0.01em;
-  }
-  .brand p.lead {
-    color: var(--text-dim);
-    font-size: 0.92rem;
-    max-width: 30ch;
-    margin: 0;
-  }
+  .brand h1 { font-size: 1.5rem; margin: 0 0 10px; letter-spacing: -0.01em; }
+  .brand p.lead { color: var(--text-dim); font-size: 0.92rem; max-width: 30ch; margin: 0; }
   .feature-list {
     position: relative;
     list-style: none;
@@ -97,25 +89,10 @@
     flex-direction: column;
     gap: 14px;
   }
-  .feature-list li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.85rem;
-    color: var(--text-dim);
-  }
-  .feature-list .dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--accent);
-    flex-shrink: 0;
-  }
-  .brand-bottom {
-    position: relative;
-    font-size: 0.78rem;
-    color: var(--text-faint);
-  }
+  .feature-list li { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: var(--text-dim); }
+  .feature-list .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .brand-bottom { position: relative; font-size: 0.78rem; color: var(--text-faint); }
 
-  /* Right form panel */
   .form-side {
     padding: 44px 40px;
     display: flex;
@@ -130,34 +107,39 @@
     font-size: 0.78rem;
     line-height: 1.5;
     color: var(--text-dim);
-    margin-bottom: 26px;
+    margin-bottom: 22px;
   }
   .notice a { color: var(--accent); }
-  .form-side h2 {
-    font-size: 1.3rem;
-    margin: 0 0 4px;
+  .notice strong { color: var(--text); }
+
+  .tabs {
+    display: flex;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 3px;
+    margin-bottom: 24px;
   }
-  .form-side .sub {
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
     color: var(--text-dim);
-    font-size: 0.86rem;
-    margin: 0 0 26px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    user-select: none;
   }
-  label {
-    display: block;
-    font-size: 0.78rem;
-    color: var(--text-dim);
-    margin-bottom: 6px;
-    font-weight: 500;
-  }
+  .tab.active { background: var(--accent); color: #fff; }
+
+  .form-side h2 { font-size: 1.3rem; margin: 0 0 4px; }
+  .form-side .sub { color: var(--text-dim); font-size: 0.86rem; margin: 0 0 24px; }
+  label { display: block; font-size: 0.78rem; color: var(--text-dim); margin-bottom: 6px; font-weight: 500; }
   .field { margin-bottom: 16px; }
   .input-wrap { position: relative; }
-  .input-wrap svg {
-    position: absolute;
-    left: 12px; top: 50%;
-    transform: translateY(-50%);
-    width: 15px; height: 15px;
-    color: var(--text-faint);
-  }
+  .input-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--text-faint); }
   input {
     width: 100%;
     background: var(--surface-2);
@@ -169,20 +151,9 @@
     outline: none;
     transition: border-color 0.15s, box-shadow 0.15s;
   }
-  input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-soft);
-  }
+  input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
   input::placeholder { color: var(--text-faint); }
-  .row {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    font-size: 0.8rem;
-    margin-bottom: 24px;
-  }
-  .row a { color: var(--accent); text-decoration: none; }
-  .row a:hover { text-decoration: underline; }
+
   button {
     width: 100%;
     background: linear-gradient(135deg, var(--accent), var(--accent-2));
@@ -193,44 +164,26 @@
     font-size: 0.92rem;
     font-weight: 600;
     cursor: pointer;
-    transition: filter 0.15s, transform 0.1s;
+    transition: filter 0.15s, transform 0.1s, opacity 0.15s;
+    margin-top: 6px;
   }
   button:hover { filter: brightness(1.08); }
   button:active { transform: translateY(1px); }
+  button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-  .divider {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 22px 0;
-    color: var(--text-faint);
-    font-size: 0.78rem;
-  }
-  .divider::before, .divider::after {
-    content: "";
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  .footer-link {
-    text-align: center;
-    font-size: 0.85rem;
-    color: var(--text-dim);
-  }
-  .footer-link a { color: var(--accent); text-decoration: none; }
-  .footer-link a:hover { text-decoration: underline; }
-
-  .toast {
+  .msg {
     margin-top: 14px;
-    font-size: 0.8rem;
-    color: var(--accent);
+    font-size: 0.82rem;
     text-align: center;
     display: none;
-    opacity: 0;
-    transition: opacity 0.2s;
   }
-  .toast.show { display: block; opacity: 1; }
+  .msg.show { display: block; }
+  .msg.error { color: var(--error); }
+  .msg.success { color: var(--success); }
+
+  .footer-link { text-align: center; margin-top: 24px; font-size: 0.85rem; color: var(--text-dim); }
+  .footer-link a { color: var(--accent); text-decoration: none; }
+  .footer-link a:hover { text-decoration: underline; }
 
   @media (max-width: 720px) {
     .shell { grid-template-columns: 1fr; }
@@ -249,7 +202,6 @@
         </div>
         <h1>TorrentEdge</h1>
         <p class="lead">Distributed BitTorrent client with real-time, event-driven architecture.</p>
-
         <ul class="feature-list">
           <li><span class="dot"></span>Peer-to-peer download &amp; upload management</li>
           <li><span class="dot"></span>Live progress via Kafka + WebSocket</li>
@@ -261,18 +213,33 @@
 
     <div class="form-side">
       <div class="notice">
-        UI preview only — this form isn't wired to a backend; no credentials are sent or stored.
-        See the <a href="https://github.com/Shaurya55555/TorrentEdge">source</a> for the real JWT/bcrypt auth flow.
+        <strong>Real auth, demo data.</strong> This form talks to a live Node/Express service
+        (bcrypt-hashed passwords, real JWTs) — same logic as the
+        <a href="https://github.com/Shaurya55555/TorrentEdge">TorrentEdge repo</a>'s auth controller.
+        It runs on a free tier with file-based storage, so accounts may be reset periodically —
+        don't use a real password. Source: <a href="https://github.com/Shaurya55555/torrentedge-auth-service">auth service repo</a>.
       </div>
 
-      <h2>Welcome back</h2>
-      <p class="sub">Sign in to manage your torrents</p>
+      <div class="tabs">
+        <div class="tab active" id="tabLogin">Sign In</div>
+        <div class="tab" id="tabSignup">Create Account</div>
+      </div>
 
-      <form id="loginForm">
+      <h2 id="formTitle">Welcome back</h2>
+      <p class="sub" id="formSub">Sign in to manage your torrents</p>
+
+      <form id="authForm">
+        <div class="field" id="usernameField" style="display:none">
+          <label for="username">Username</label>
+          <div class="input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+            <input id="username" type="text" placeholder="yourname" autocomplete="off" />
+          </div>
+        </div>
         <div class="field">
           <label for="email">Email</label>
           <div class="input-wrap">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z" stroke="none"/><path d="M4 6l8 6 8-6" stroke="currentColor"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M4 6l8 6 8-6"/></svg>
             <input id="email" type="email" placeholder="you@example.com" autocomplete="off" />
           </div>
         </div>
@@ -283,15 +250,10 @@
             <input id="password" type="password" placeholder="••••••••" autocomplete="off" />
           </div>
         </div>
-        <div class="row">
-          <a href="#">Forgot password?</a>
-        </div>
-        <button type="submit">Sign In</button>
+        <button type="submit" id="submitBtn">Sign In</button>
       </form>
 
-      <div class="toast" id="toast">This is a static UI preview — sign-in isn't functional here.</div>
-
-      <div class="divider">back to project</div>
+      <div class="msg" id="msg"></div>
 
       <div class="footer-link">
         <a href="index.html">← Return to showcase</a>
@@ -300,10 +262,76 @@
   </div>
 
 <script>
-  document.getElementById('loginForm').addEventListener('submit', function (e) {
+  const API_BASE = 'https://torrentedge-auth.onrender.com';
+  let mode = 'login';
+
+  const tabLogin = document.getElementById('tabLogin');
+  const tabSignup = document.getElementById('tabSignup');
+  const usernameField = document.getElementById('usernameField');
+  const formTitle = document.getElementById('formTitle');
+  const formSub = document.getElementById('formSub');
+  const submitBtn = document.getElementById('submitBtn');
+  const msg = document.getElementById('msg');
+  const form = document.getElementById('authForm');
+
+  function setMode(next) {
+    mode = next;
+    tabLogin.classList.toggle('active', mode === 'login');
+    tabSignup.classList.toggle('active', mode === 'signup');
+    usernameField.style.display = mode === 'signup' ? 'block' : 'none';
+    formTitle.textContent = mode === 'signup' ? 'Create your account' : 'Welcome back';
+    formSub.textContent = mode === 'signup' ? 'Sign up to try the real auth flow' : 'Sign in to manage your torrents';
+    submitBtn.textContent = mode === 'signup' ? 'Create Account' : 'Sign In';
+    msg.className = 'msg';
+  }
+
+  tabLogin.addEventListener('click', () => setMode('login'));
+  tabSignup.addEventListener('click', () => setMode('signup'));
+
+  function showMsg(text, type) {
+    msg.textContent = text;
+    msg.className = 'msg show ' + type;
+  }
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    var toast = document.getElementById('toast');
-    toast.classList.add('show');
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const username = document.getElementById('username').value.trim();
+
+    if (!email || !password || (mode === 'signup' && !username)) {
+      showMsg('Please fill in all fields.', 'error');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = mode === 'signup' ? 'Creating…' : 'Signing in…';
+    showMsg('Waking up the free-tier server (can take ~30s on first request)…', 'success');
+
+    try {
+      const path = mode === 'signup' ? '/api/auth/register' : '/api/auth/login';
+      const body = mode === 'signup' ? { username, email, password } : { email, password };
+      const res = await fetch(API_BASE + path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        showMsg(data.error || data.message || 'Something went wrong.', 'error');
+      } else if (mode === 'signup') {
+        showMsg('Account created — you can sign in now.', 'success');
+        setMode('login');
+      } else {
+        showMsg('Signed in! Received a real JWT: ' + data.token.slice(0, 24) + '…', 'success');
+      }
+    } catch (err) {
+      showMsg('Could not reach the auth service. It may be spinning up — try again in a few seconds.', 'error');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = mode === 'signup' ? 'Create Account' : 'Sign In';
+    }
   });
 </script>
 </body>
