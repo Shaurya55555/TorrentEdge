@@ -104,48 +104,76 @@
   </header>
 
   <main>
-    <div class="notice">
-      You're authenticated via a real JWT issued by the live
-      <a href="https://github.com/Shaurya55555/torrentedge-auth-service">auth service</a>.
-      This dashboard is a static UI shell — it doesn't connect to a live torrent/Kafka backend,
-      since that requires the full Dockerized stack. See the
-      <a href="https://github.com/Shaurya55555/TorrentEdge">TorrentEdge repo</a> for that.
+    <div class="notice" id="notice">
+      Checking session against the live
+      <a href="https://github.com/Shaurya55555/torrentedge-auth-service">auth service</a>…
     </div>
 
     <h1 id="welcome">Welcome back</h1>
     <p class="sub">Here's a snapshot of your session.</p>
 
     <div class="grid">
-      <div class="stat"><div class="num">0</div><div class="label">Active torrents</div></div>
-      <div class="stat"><div class="num">0 MB/s</div><div class="label">Download speed</div></div>
-      <div class="stat"><div class="num">0 MB/s</div><div class="label">Upload speed</div></div>
+      <div class="stat"><div class="num">0</div><div class="label">Active torrents (simulated)</div></div>
+      <div class="stat"><div class="num">0 MB/s</div><div class="label">Download speed (simulated)</div></div>
+      <div class="stat"><div class="num">0 MB/s</div><div class="label">Upload speed (simulated)</div></div>
     </div>
 
     <div class="panel">
       <h2>Session</h2>
       <div class="kv"><span class="k">Username</span><span class="v" id="usernameVal">—</span></div>
       <div class="kv"><span class="k">Auth method</span><span class="v">JWT (bcrypt-verified)</span></div>
+      <div class="kv"><span class="k">Server verification</span><span class="v" id="verifyVal">checking…</span></div>
       <div class="kv"><span class="k">Token (truncated)</span><span class="v" id="tokenVal">—</span></div>
     </div>
   </main>
 
 <script>
+  const API_BASE = 'https://torrentedge-auth.onrender.com';
   const token = localStorage.getItem('te_token');
-  const username = localStorage.getItem('te_username');
+  const storedUsername = localStorage.getItem('te_username');
+  const noticeEl = document.getElementById('notice');
 
-  if (!token) {
-    window.location.href = 'login.html';
-  } else {
-    document.getElementById('welcome').textContent = 'Welcome, ' + (username || 'torrent user');
-    document.getElementById('usernameVal').textContent = username || '—';
-    document.getElementById('tokenVal').textContent = token.slice(0, 32) + '…';
-  }
-
-  document.getElementById('logoutBtn').addEventListener('click', () => {
+  function logout() {
     localStorage.removeItem('te_token');
     localStorage.removeItem('te_username');
     window.location.href = 'login.html';
-  });
+  }
+
+  if (!token) {
+    logout();
+  } else {
+    document.getElementById('tokenVal').textContent = token.slice(0, 32) + '…';
+
+    fetch(API_BASE + '/api/auth/verify', {
+      headers: { Authorization: 'Bearer ' + token }
+    })
+      .then((res) => res.json().then((body) => ({ ok: res.ok, body })))
+      .then(({ ok, body }) => {
+        if (!ok || !body.valid) {
+          logout();
+          return;
+        }
+        const username = body.username || storedUsername || 'torrent user';
+        document.getElementById('welcome').textContent = 'Welcome, ' + username;
+        document.getElementById('usernameVal').textContent = username;
+        document.getElementById('verifyVal').textContent = 'Verified live ✓';
+        noticeEl.innerHTML = 'This session\'s JWT was just verified live against the ' +
+          '<a href="https://github.com/Shaurya55555/torrentedge-auth-service">auth service</a> ' +
+          '(real bcrypt + JWT, free-tier hosted). The stats below are simulated demo data — ' +
+          'there\'s no live torrent/Kafka backend deployed publicly; that stack ' +
+          '(Express + Kafka + Mongo) runs locally via Docker. See the ' +
+          '<a href="https://github.com/Shaurya55555/TorrentEdge">TorrentEdge repo</a> to run it yourself.';
+      })
+      .catch(() => {
+        noticeEl.textContent = 'Could not reach the live auth service to verify this session ' +
+          '(it may be waking from idle on the free tier — try reloading in a few seconds).';
+        document.getElementById('verifyVal').textContent = 'Unreachable';
+        document.getElementById('welcome').textContent = 'Welcome, ' + (storedUsername || 'torrent user');
+        document.getElementById('usernameVal').textContent = storedUsername || '—';
+      });
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', logout);
 </script>
 </body>
 </html>
